@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071638">
+<meta name="description" content="My Taka — offline personal money tracker">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>My Taka</title>
+<style>
+:root{color-scheme:dark;--bg:#071638;--panel:#101f43;--panel2:#16284f;--text:#f4f6ff;--muted:#aab6d2;--gold:#ffc33d;--green:#55d6a0;--red:#ff7787}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#071638,#0b1731 65%,#101d3d);color:var(--text);font:16px system-ui,-apple-system,"Noto Sans Bengali",sans-serif;min-height:100vh}
+header{padding:22px 18px 12px;max-width:850px;margin:auto;display:flex;align-items:center;gap:12px}
+header img{width:48px;height:48px;border-radius:14px}h1{font-size:22px;margin:0}header small{color:var(--muted)}
+main{max-width:850px;margin:auto;padding:10px 16px 48px}.balance{background:linear-gradient(135deg,#172c59,#102044);border:1px solid #2b3e68;border-radius:22px;padding:22px;margin-bottom:14px}.balance small,.muted{color:var(--muted)}.amount{font-size:34px;font-weight:800;margin:6px 0 18px;color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#0b1a39;border-radius:14px;padding:12px}.stat b{display:block;font-size:19px;margin-top:4px}
+.tabs{display:flex;gap:8px;overflow:auto;margin:14px 0}.tabs button{white-space:nowrap}.tab{border:1px solid #34466f;background:#101f43;color:var(--text);padding:10px 14px;border-radius:12px}.tab.active{background:var(--gold);color:#10172b;border-color:var(--gold);font-weight:700}
+.panel{background:var(--panel);border:1px solid #263a65;border-radius:18px;padding:16px;margin-bottom:14px}h2{font-size:18px;margin:0 0 14px}label{display:block;color:var(--muted);font-size:13px;margin:10px 0 5px}input,select,textarea{width:100%;background:#091833;border:1px solid #34466f;color:var(--text);padding:12px;border-radius:11px;font:inherit}button.primary{background:var(--gold);border:0;color:#111a31;font-weight:800;padding:12px 16px;border-radius:12px;width:100%;margin-top:12px;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tx{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #26375b}.tx:last-child{border:0}.tx small{display:block;color:var(--muted);margin-top:3px}.income{color:var(--green)}.expense{color:var(--red)}.hidden{display:none}.denoms{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.denom{background:#0b1a39;padding:10px;border-radius:12px}.denom input{margin-top:6px}.total{font-size:24px;color:var(--gold);font-weight:800;margin-top:14px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px}
+@media(min-width:650px){.stats{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><img src="./icon-192.png" alt=""><div><h1>My Taka</h1><small>তোমার টাকা, তোমার হিসাব</small></div></header>
+<main>
+<section class="balance">
+<small>মোট বর্তমান ব্যালেন্স</small><div class="amount" id="balance">৳০</div>
+<div class="stats">
+<div class="stat"><small>এই মাসের আয়</small><b class="income" id="monthIncome">৳০</b></div>
+<div class="stat"><small>এই মাসের খরচ</small><b class="expense" id="monthExpense">৳০</b></div>
+<div class="stat"><small>এই মাসের অবশিষ্ট</small><b id="monthNet">৳০</b></div>
+</div></section>
+<nav class="tabs">
+<button class="tab active" data-tab="entry">লেনদেন</button><button class="tab" data-tab="history">হিস্টোরি</button><button class="tab" data-tab="cash">নোট গোনা</button><button class="tab" data-tab="backup">ব্যাকআপ</button>
+</nav>
+<section id="entry" class="panel">
+<h2>নতুন হিসাব যোগ করো</h2>
+<div class="row"><div><label>ধরন</label><select id="type"><option value="income">আয়</option><option value="expense">খরচ</option></select></div><div><label>তারিখ</label><input id="date" type="date"></div></div>
+<label>বিবরণ</label><input id="desc" placeholder="যেমন: টিউশনি / খাবার">
+<div class="row"><div><label>ক্যাটাগরি</label><select id="category"><option>টিউশনি</option><option>বেতন</option><option>খাবার</option><option>যাতায়াত</option><option>কেনাকাটা</option><option>বিল</option><option>অন্যান্য</option></select></div><div><label>টাকার পরিমাণ (৳)</label><input id="amount" type="number" min="1" inputmode="decimal" placeholder="0"></div></div>
+<button class="primary" id="add">হিসাব সংরক্ষণ</button>
+</section>
+<section id="history" class="panel hidden"><h2>লেনদেনের ইতিহাস</h2><div class="row"><div><label>মাস নির্বাচন</label><input id="month" type="month"></div><div style="align-self:end"><button class="tab" id="allMonths">সব মাস</button></div></div><div id="transactions"></div></section>
+<section id="cash" class="panel hidden"><h2>হাতে থাকা নোট ও কয়েন</h2><p class="muted">প্রতিটি নোট/কয়েনের সংখ্যা লিখো।</p><div class="denoms" id="denoms"></div><div class="total" id="cashTotal">মোট: ৳০</div></section>
+<section id="backup" class="panel hidden"><h2>ব্যাকআপ ও রিস্টোর</h2><p class="muted">ডেটা শুধু এই ডিভাইসের ব্রাউজারে থাকে। নিরাপদে রাখতে নিয়মিত ব্যাকআপ নামিয়ে রাখো।</p><button class="primary" id="export">ব্যাকআপ ডাউনলোড (JSON)</button><label>আগের ব্যাকআপ ফিরিয়ে আনো</label><input id="restore" type="file" accept="application/json"><button class="tab" id="clear" style="margin-top:12px;color:#ff9aa6">সব হিসাব মুছে ফেলো</button></section>
+<footer>Offline-first · ডেটা তোমার ডিভাইসেই থাকে</footer>
+</main>
+<script>
+const KEY="mytaka_offline_v2";let data=JSON.parse(localStorage.getItem(KEY)||'{"tx":[]}');
+const fmt=n=>"৳"+Number(n||0).toLocaleString("bn-BD",{maximumFractionDigits:2});
+const today=new Date();document.getElementById("date").value=today.toISOString().slice(0,10);document.getElementById("month").value=today.toISOString().slice(0,7);
+function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function totals(list){return list.reduce((a,t)=>{a[t.type]+=Number(t.amount);return a},{income:0,expense:0})}
+function render(){let t=totals(data.tx),m=document.getElementById("month").value,mt=totals(data.tx.filter(x=>!m||x.date.startsWith(m)));document.getElementById("balance").textContent=fmt(t.income-t.expense);document.getElementById("monthIncome").textContent=fmt(mt.income);document.getElementById("monthExpense").textContent=fmt(mt.expense);document.getElementById("monthNet").textContent=fmt(mt.income-mt.expense);
+let list=data.tx.filter(x=>!m||x.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date));document.getElementById("transactions").innerHTML=list.length?list.map(x=>`<div class="tx"><div>${esc(x.desc)}<small>${esc(x.date)} · ${esc(x.category)}</small></div><div class="${x.type}">${x.type==="income"?"+":"−"}${fmt(x.amount)} <button class="tab" data-del="${x.id}" aria-label="মুছুন">×</button></div></div>`).join(""):'<p class="muted">এই মাসে কোনো হিসাব নেই।</p>'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+document.getElementById("add").onclick=()=>{let amount=Number(document.getElementById("amount").value),desc=document.getElementById("desc").value.trim();if(!amount||amount<0||!desc){alert("বিবরণ ও সঠিক টাকার পরিমাণ দাও।");return}data.tx.push({id:Date.now().toString(),type:document.getElementById("type").value,date:document.getElementById("date").value,desc,category:document.getElementById("category").value,amount});document.getElementById("desc").value="";document.getElementById("amount").value="";save()};
+document.getElementById("transactions").onclick=e=>{let id=e.target.dataset.del;if(id&&confirm("এই হিসাবটি মুছে ফেলবে?")){data.tx=data.tx.filter(x=>x.id!==id);save()}};
+document.getElementById("month").onchange=render;document.getElementById("allMonths").onclick=()=>{document.getElementById("month").value="";render()};
+document.querySelectorAll(".tab[data-tab]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab[data-tab]").forEach(x=>x.classList.toggle("active",x===b));["entry","history","cash","backup"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==b.dataset.tab))});
+const values=[1000,500,200,100,50,20,10,5,2,1];document.getElementById("denoms").innerHTML=values.map(v=>`<div class="denom">৳${v}<input type="number" min="0" step="1" value="0" data-v="${v}" inputmode="numeric" placeholder="সংখ্যা"></div>`).join("");
+document.getElementById("denoms").oninput=()=>{let n=[...document.querySelectorAll("[data-v]")].reduce((s,x)=>s+Number(x.dataset.v)*Number(x.value||0),0);document.getElementById("cashTotal").textContent="মোট: "+fmt(n)};
+document.getElementById("export").onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="my-taka-backup.json";a.click();URL.revokeObjectURL(a.href)};
+document.getElementById("restore").onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(!Array.isArray(x.tx))throw Error();data=x;save();alert("ব্যাকআপ ফিরিয়ে আনা হয়েছে।")}catch{alert("ব্যাকআপ ফাইলটি সঠিক নয়।")}};
+document.getElementById("clear").onclick=()=>{if(confirm("সব হিসাব স্থায়ীভাবে মুছে ফেলবে?")){data={tx:[]};save()}};
+render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+let installPrompt;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;let b=document.createElement("button");b.className="primary";b.textContent="My Taka ইনস্টল করো";document.querySelector("header").appendChild(b);b.onclick=async()=>{installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;b.remove()}});
+</script>
+</body></html>
